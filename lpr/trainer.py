@@ -19,8 +19,6 @@ import tensorflow as tf
 import tensorflow.contrib.slim as slim
 from lpr.networks.lprnet import LPRNet
 from spatial_transformer import transformer
-import spatial_transformer
-print('kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk', spatial_transformer.__file__)
 
 
 class InputData:

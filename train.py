@@ -19,36 +19,49 @@ import os
 import argparse
 import numpy as np
 import tensorflow as tf
-from lpr.trainer import CTCUtils, inference, InputData
+from lpr.trainer import CTCUtils, inference, InputDatai, LPRVocab
 from tfutils.helpers import load_module
 
 
 def parse_args():
   parser = argparse.ArgumentParser(description='Perform training of a model')
-  parser.add_argument('path_to_config', help='Path to a config.py')
   parser.add_argument('--init_checkpoint', default=None, help='Path to checkpoint')
+  parser.add_argument('--input_shape', default=(24, 94, 3), help='Input shape')
+  parser.add_argument('--batch_size', default=32, type=int, help='Batch size')
+  parser.add_argument('--learning_rate', type=float, default=0.001, help='Learning rate')
+  parser.add_argument('--opt_type', default='Adam', help='The optimization algorithm to use')
+  parser.add_argument('--grad_noise_scale', default=0.001, help='Grad noise scale')
+  parser.add_argument('--steps', type=int, default=250000, help='Steps')
+  parser.add_argument('--apply_basic_aug', default=False, action='store_true', help='Apply basic aug')
+  parser.add_argument('--apply_stn_aug', action='store_true', help='Apply stn aug')
+  parser.add_argument('--apply_blur_aug', action='store_true', default=False, help='Apply blur aug')
+  parser.add_argument('--train_file_list_path', help='Train file list path', default='Synthetic_Chinese_License_Plates/train')
+  parser.add_argument('--eval_file_list_path', help='Eval file list path', default='Synthetic_Chinese_License_Plates/val')
+  parser.add_argument('--rnn_cells_num', default=128, help='Rnn cells num')
+  parser.add_argument('--need_to_save_log', action='store_true', help='Need to save log')
+  parser.add_argument('--model_dir', default='./model', help='Model dir')
+  parser.add_argument('--display_iter', default=100, type=int, help='Display iter')
+  parser.add_argument('--save_checkpoints_steps', default=1000, type=int, help='Save checkpoints steps')
+  parser.add_argument('--need_to_save_weights', action='store_true', help='Need to save weights')
+  parser.add_argument('--gpu_memory_fraction', default=0.8, help='Gpu memory fraction')
   return parser.parse_args()
 
 # pylint: disable=too-many-locals, too-many-statements
-def train(config, init_checkpoint):
-  if hasattr(config.train, 'random_seed'):
-    np.random.seed(config.train.random_seed)
-    tf.set_random_seed(config.train.random_seed)
-    random.seed(config.train.random_seed)
+def train(args):
+  vocab, r_vocab, num_classes = LPRVocab.create_vocab(args.train_file_list_path,
+                                                      args.eval_file_list_path,
+                                                      False,
+                                                      False)
 
-  if hasattr(config.train.execution, 'CUDA_VISIBLE_DEVICES'):
-    os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-    os.environ["CUDA_VISIBLE_DEVICES"] = config.train.execution.CUDA_VISIBLE_DEVICES
+  CTCUtils.vocab = vocab
+  CTCUtils.r_vocab = r_vocab
 
-  CTCUtils.vocab = config.vocab
-  CTCUtils.r_vocab = config.r_vocab
-
-  input_train_data = InputData(batch_size=config.train.batch_size,
-                               input_shape=config.input_shape,
-                               file_list_path=config.train.file_list_path,
-                               apply_basic_aug=config.train.apply_basic_aug,
-                               apply_stn_aug=config.train.apply_stn_aug,
-                               apply_blur_aug=config.train.apply_blur_aug)
+  input_train_data = InputData(batch_size=args.batch_size,
+                               input_shape=args.input_shape,
+                               file_list_path=args.train_file_list_path,
+                               apply_basic_aug=args.apply_basic_aug,
+                               apply_stn_aug=args.apply_stn_aug,
+                               apply_blur_aug=args.apply_blur_aug)
 
 
   graph = tf.Graph()
@@ -56,7 +69,7 @@ def train(config, init_checkpoint):
     global_step = tf.Variable(0, name='global_step', trainable=False)
     input_data, input_labels = input_train_data.input_fn()
 
-    prob = inference(config.rnn_cells_num, input_data, config.num_classes)
+    prob = inference(args.rnn_cells_num, input_data, num_classes)
     prob = tf.transpose(prob, (1, 0, 2))  # prepare for CTC
 
     data_length = tf.fill([tf.shape(prob)[1]], tf.shape(prob)[0])  # input seq length, batch size
@@ -72,19 +85,17 @@ def train(config, init_checkpoint):
       tf.nn.ctc_loss(inputs=prob, labels=ctc_labels, sequence_length=data_length, ctc_merge_repeated=True), name='loss')
 
     learning_rate = tf.train.piecewise_constant(global_step, [150000, 200000],
-                                                [config.train.learning_rate, 0.1 * config.train.learning_rate,
-                                                 0.01 * config.train.learning_rate])
-    opt_loss = tf.contrib.layers.optimize_loss(loss, global_step, learning_rate, config.train.opt_type,
-                                               config.train.grad_noise_scale, name='train_step')
+                                                [args.learning_rate, 0.1 * args.learning_rate,
+                                                 0.01 * args.learning_rate])
+    opt_loss = tf.contrib.layers.optimize_loss(loss, global_step, learning_rate, args.opt_type,
+                                               args.grad_noise_scale, name='train_step')
 
     tf.global_variables_initializer()
     saver = tf.train.Saver(max_to_keep=1000, write_version=tf.train.SaverDef.V2, save_relative_paths=True)
 
-  conf = tf.ConfigProto()
-  if hasattr(config.train.execution, 'per_process_gpu_memory_fraction'):
-    conf.gpu_options.per_process_gpu_memory_fraction = config.train.execution.per_process_gpu_memory_fraction
-  if hasattr(config.train.execution, 'allow_growth'):
-    conf.gpu_options.allow_growth = config.train.execution.allow_growth
+  conf = tf.ConfigProto(allow_soft_placement=True)
+  conf.gpu_options.allow_growth = True
+  conf.gpu_options.per_process_gpu_memory_fraction = args.gpu_memory_fraction
 
   session = tf.Session(graph=graph, config=conf)
   coordinator = tf.train.Coordinator()
@@ -92,27 +103,27 @@ def train(config, init_checkpoint):
 
   session.run('init')
 
-  if init_checkpoint:
-    tf.logging.info('Initialize from: ' + init_checkpoint)
-    saver.restore(session, init_checkpoint)
+  if args.init_checkpoint:
+    tf.logging.info('Initialize from: ' + args.init_checkpoint)
+    saver.restore(session, args.init_checkpoint)
   else:
-    lastest_checkpoint = tf.train.latest_checkpoint(config.model_dir)
+    lastest_checkpoint = tf.train.latest_checkpoint(args.model_dir)
     if lastest_checkpoint:
       tf.logging.info('Restore from: ' + lastest_checkpoint)
       saver.restore(session, lastest_checkpoint)
 
   writer = None
-  if config.train.need_to_save_log:
-    writer = tf.summary.FileWriter(config.model_dir, session.graph)
+  if args.need_to_save_log:
+    writer = tf.summary.FileWriter(args.model_dir, session.graph)
 
   graph.finalize()
 
 
-  for i in range(config.train.steps):
+  for i in range(args.steps):
     curr_step, curr_learning_rate, curr_loss, curr_opt_loss = session.run([global_step, learning_rate, loss, opt_loss])
 
-    if i % config.train.display_iter == 0:
-      if config.train.need_to_save_log:
+    if i % args.display_iter == 0:
+      if args.need_to_save_log:
 
         writer.add_summary(tf.Summary(value=[tf.Summary.Value(tag='train/loss',
                                                               simple_value=float(curr_loss)),
@@ -126,9 +137,9 @@ def train(config, init_checkpoint):
 
       tf.logging.info('Iteration: ' + str(curr_step) + ', Train loss: ' + str(curr_loss))
 
-    if ((curr_step % config.train.save_checkpoints_steps == 0 or curr_step == config.train.steps)
-        and config.train.need_to_save_weights):
-      saver.save(session, config.model_dir + '/model.ckpt-{:d}.ckpt'.format(curr_step))
+    if ((curr_step % args.save_checkpoints_steps == 0 or curr_step == args.steps)
+        and args.need_to_save_weights):
+      saver.save(session, args.model_dir + '/model.ckpt-{:d}.ckpt'.format(curr_step))
 
   coordinator.request_stop()
   coordinator.join(threads)
@@ -137,8 +148,7 @@ def train(config, init_checkpoint):
 
 def main(_):
   args = parse_args()
-  cfg = load_module(args.path_to_config)
-  train(cfg, args.init_checkpoint)
+  train(args)
 
 
 if __name__ == '__main__':
