@@ -19,7 +19,7 @@ import os
 import argparse
 import numpy as np
 import tensorflow as tf
-from lpr.trainer import CTCUtils, inference, InputDatai, LPRVocab
+from lpr.trainer import CTCUtils, inference, InputData, LPRVocab
 from tfutils.helpers import load_module
 
 
@@ -43,7 +43,7 @@ def parse_args():
   parser.add_argument('--display_iter', default=100, type=int, help='Display iter')
   parser.add_argument('--save_checkpoints_steps', default=1000, type=int, help='Save checkpoints steps')
   parser.add_argument('--need_to_save_weights', action='store_true', help='Need to save weights')
-  parser.add_argument('--gpu_memory_fraction', default=0.8, help='Gpu memory fraction')
+  parser.add_argument('--gpu_memory_fraction', default=0.8, type=float, help='Gpu memory fraction')
   return parser.parse_args()
 
 # pylint: disable=too-many-locals, too-many-statements
