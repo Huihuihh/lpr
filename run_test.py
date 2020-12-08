@@ -20,7 +20,7 @@ import numpy as np
 import cv2
 
 from tfutils.helpers import load_module
-from lpr.trainer import decode_beams
+from lpr.trainer import decode_beams, LPRVocab
 
 
 def load_graph(frozen_graph_filename):
@@ -47,19 +47,23 @@ def display_license_plate(number, license_plate_img):
 def build_argparser():
   parser = ArgumentParser()
   parser.add_argument('--model', help='Path to frozen graph file with a trained model.', required=True, type=str)
-  parser.add_argument('--config', help='Path to a config.py', required=True, type=str)
   parser.add_argument('--output', help='Output image')
-  parser.add_argument('input_image', help='Image with license plate')
+  parser.add_argument('--input', help='Image with license plate')
+  parser.add_argument('--train_file_list_path', help='Train file list path', default='/root/dataset/synthetic-chinese-license-plates/Synthetic_Chinese_License_Plates/train')
+  parser.add_argument('--eval_file_list_path', help='Eval file list path', default='/root/dataset/synthetic-chinese-license-plates/Synthetic_Chinese_License_Plates/val')
   return parser
 
 
 def main():
   args = build_argparser().parse_args()
+  vocab, r_vocab, num_classes = LPRVocab.create_vocab(args.train_file_list_path,
+                                                      args.eval_file_list_path,
+                                                      False,
+                                                      False)
 
   graph = load_graph(args.model)
-  config = load_module(args.config)
 
-  image = cv2.imread(args.input_image)
+  image = cv2.imread(args.input)
   img = cv2.resize(image, (94, 24))
   img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
   img = np.float32(img)
@@ -72,7 +76,7 @@ def main():
     results = sess.run(output, feed_dict={input: [img]})
     print(results)
 
-    decoded_lp = decode_beams(results, config.r_vocab)[0]
+    decoded_lp = decode_beams(results, r_vocab)[0]
     print(decoded_lp)
 
     img_to_display = display_license_plate(decoded_lp, image)
