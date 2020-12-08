@@ -75,8 +75,6 @@ def main(_):
   if not checkpoint or not os.path.isfile(checkpoint+'.index'):
     raise FileNotFoundError(str(checkpoint))
 
-  output_dir = args.output_dir
-
   frozen_graph = freezing_graph(args)
 
 
