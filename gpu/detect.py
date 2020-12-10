@@ -26,8 +26,6 @@ net.setPreferableTarget(dnn.DNN_TARGET_OPENCL)
 def build_argparser():
     parser = ArgumentParser()
     parser.add_argument("--model", help="Path to an .xml file with a trained model.", required=True, type=str)
-    parser.add_argument('--train_file_list_path', help='Train file list path', default='/home/awcloud/Desktop/openvino_training_extensions/data/synthetic_chinese_license_plates/Synthetic_Chinese_License_Plates/train')
-    parser.add_argument('--eval_file_list_path', help='Eval file list path', default='/home/awcloud/Desktop/openvino_training_extensions/data/synthetic_chinese_license_plates/Synthetic_Chinese_License_Plates/val')
     return parser
 
 def rotate(image, degree):
@@ -85,7 +83,6 @@ def detect(frame):
 
             # 必须调整车牌到统一大小
             plate = image_sub
-            # print(plate.shape[0],plate.shape[1])
             if plate.shape[0] > 36:
                 plate = cv2.resize(image_sub, (136, 36 * 2))
             else:
@@ -101,8 +98,6 @@ def detect(frame):
 
             # 精定位，倾斜校正
             image_rgb = fm.findContoursAndDrawBoundingBox(plate)
-           # cv2.imshow("test", image_rgb);
-           # cv2.waitKey(0)
             # 车牌左右边界修正
             #image_rgb = fv.finemappingVertical(image_rgb)
             plates.append(image_rgb)
@@ -170,15 +165,15 @@ def main():
 
     graph = load_graph(args.model)
 
-    cv2.namedWindow('tttt', 0)
-    cv2.resizeWindow("tttt", 640, 480)
+    cv2.namedWindow('camera', 0)
+    cv2.resizeWindow("camera", 640, 480)
     cap = cv2.VideoCapture('/home/awcloud/Desktop/code/lpr/test.mp4')
     while cv2.waitKey(1) < 0:
         hasFrame, frame = cap.read()
         frame = rotate(frame, -90)
         plates, xLeftBottoms, yLeftBottoms, xRightTops, yRightTops = detect(frame)
         if (len(plates)==0):
-            cv2.imshow('tttt', frame)
+            cv2.imshow('camera', frame)
         else:
             for i, plate in enumerate(plates):
                 in_frame = cv2.resize(plates[i], (94, 24))
@@ -196,7 +191,7 @@ def main():
                     draw = ImageDraw.Draw(img)
                     draw.text((xLeftBottoms[i] + 1, yLeftBottoms[i] - 28), decoded_lp, (0, 0, 255), font=fontC)
                     imagex = np.array(img)
-                    cv2.imshow('tttt', imagex)
+                    cv2.imshow('camera', imagex)
     cap.release()
     cv2.destroyAllWindows()
 
