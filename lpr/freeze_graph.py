@@ -22,15 +22,14 @@ import tensorflow as tf
 import tensorflow.contrib.slim as slim
 from tensorflow.python.framework import graph_io
 
-from lpr.trainer import inference, LPRVocab
+from lpr.trainer import inference
 
+num_classes=71
 
 def parse_args():
   parser = argparse.ArgumentParser(description='Export model in IE format')
   parser.add_argument('--output_dir', default=None, help='Output Directory')
   parser.add_argument('--checkpoint', default=None, help='Default: latest')
-  parser.add_argument('--train_file_list_path', help='Train file list path', default='/root/dataset/synthetic-chinese-license-plates/Synthetic_Chinese_License_Plates/train')
-  parser.add_argument('--eval_file_list_path', help='Eval file list path', default='/root/dataset/synthetic-chinese-license-plates/Synthetic_Chinese_License_Plates/val')
   return parser.parse_args()
 
 
@@ -38,10 +37,6 @@ def freezing_graph(args):
   input_shape = (24, 94, 3)
   rnn_cells_num = 128
   max_lp_length = 20
-  vocab, r_vocab, num_classes = LPRVocab.create_vocab(args.train_file_list_path,
-                                                      args.eval_file_list_path,
-                                                      False,
-                                                      False)
   if not os.path.exists(args.output_dir):
     os.makedirs(args.output_dir)
 
