@@ -24,7 +24,6 @@ from tensorflow.python.framework import graph_io
 
 from lpr.trainer import inference
 
-num_classes=71
 
 def parse_args():
   parser = argparse.ArgumentParser(description='Export model in IE format')
@@ -37,6 +36,7 @@ def freezing_graph(args):
   input_shape = (24, 94, 3)
   rnn_cells_num = 128
   max_lp_length = 20
+  num_classes=71
   if not os.path.exists(args.output_dir):
     os.makedirs(args.output_dir)
 
