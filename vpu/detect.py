@@ -14,18 +14,16 @@
 # See the License for the specific language governing permissions
 # and limitations under the License.
 
-from __future__ import print_function
 from argparse import ArgumentParser
 import logging as log
 import sys
+from time import time
 import os
 from cv2 import dnn
 import cv2
 from openvino.inference_engine import IENetwork, IEPlugin
-from lpr.trainer import decode_ie_output
 import numpy as np
-from tfutils.helpers import load_module
-from hyperlpr_py3 import pipline as pp
+import finemapping as fm
 from PIL import Image, ImageDraw, ImageFont
 
 
@@ -34,13 +32,15 @@ fontC = ImageFont.truetype("Font/platech.ttf", 38, 0)  # 加载中文字体，38
 
 inWidth = 480
 inHeight = 640
-WHRatio = inWidth / float(inHeight)
 inScaleFactor = 0.007843
 meanVal = 127.5
-plateTypeName = ["蓝", "黄", "绿", "白", "黑 "]
 net = dnn.readNetFromCaffe("model/MobileNetSSD_test.prototxt","model/lpr.caffemodel")
 net.setPreferableBackend(dnn.DNN_BACKEND_OPENCV)
 net.setPreferableTarget(dnn.DNN_TARGET_OPENCL)
+num_classes=71
+provinces={'<Beijing>': '京', '<Shanghai>': '沪', '<Tianjin>': '津', '<Hebei>': '冀', '<Shanxi>': '晋', '<InnerMongolia>': '蒙', '<Jilin>': '吉', '<Heilongjiang>': '黑', '<Jiangsu>': '苏', '<Zhejiang>': '浙', '<Anhui>': '皖', '<Fujian>': '闽', '<Jiangxi>': '赣', '<Shandong>': '鲁', '<Henan>': '豫', '<Hubei>': '鄂', '<Hunan>': '湘', '<Guangdong>': '粤', '<Guangxi>': '桂', '<Hainan>': '琼', '<Sichuan>': '川', '<Guizhou>': '贵', '<Yunnan>': '云', '<Tibet>': '藏', '<Shaanxi>': '陕', '<Gansu>': '甘', '<Qinghai>': '青', '<Ningxia>': '宁', '<Xinjiang>': '新', '<Liaoning>': '辽', '<Chongqing>': '渝', '<police>': '警', '<HongKong>': '港', 'Macau': '澳'}
+vocab={'0': 0, '1': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '<Anhui>': 10, '<Beijing>': 11, '<Chongqing>': 12, '<Fujian>': 13, '<Gansu>': 14, '<Guangdong>': 15, '<Guangxi>': 16, '<Guizhou>': 17, '<Hainan>': 18, '<Hebei>': 19, '<Heilongjiang>': 20, '<Henan>': 21, '<HongKong>': 22, '<Hubei>': 23, '<Hunan>': 24, '<InnerMongolia>': 25, '<Jiangsu>': 26, '<Jiangxi>': 27, '<Jilin>': 28, '<Liaoning>': 29, '<Macau>': 30, '<Ningxia>': 31, '<Qinghai>': 32, '<Shaanxi>': 33, '<Shandong>': 34, '<Shanghai>': 35, '<Shanxi>': 36, '<Sichuan>': 37, '<Tianjin>': 38, '<Tibet>': 39, '<Xinjiang>': 40, '<Yunnan>': 41, '<Zhejiang>': 42, '<police>': 43, 'A': 44, 'B': 45, 'C': 46, 'D': 47, 'E': 48, 'F': 49, 'G': 50, 'H': 51, 'I': 52, 'J': 53, 'K': 54, 'L': 55, 'M': 56, 'N': 57, 'O': 58, 'P': 59, 'Q': 60, 'R': 61, 'S': 62, 'T': 63, 'U': 64, 'V': 65, 'W': 66, 'X': 67, 'Y': 68, 'Z': 69, '_': 70}
+r_vocab={0: '0', 1: '1', 2: '2', 3: '3', 4: '4', 5: '5', 6: '6', 7: '7', 8: '8', 9: '9', 10: '<Anhui>', 11: '<Beijing>', 12: '<Chongqing>', 13: '<Fujian>', 14: '<Gansu>', 15: '<Guangdong>', 16: '<Guangxi>', 17: '<Guizhou>', 18: '<Hainan>', 19: '<Hebei>', 20: '<Heilongjiang>', 21: '<Henan>', 22: '<HongKong>', 23: '<Hubei>', 24: '<Hunan>', 25: '<InnerMongolia>', 26: '<Jiangsu>', 27: '<Jiangxi>', 28: '<Jilin>', 29: '<Liaoning>', 30: '<Macau>', 31: '<Ningxia>', 32: '<Qinghai>', 33: '<Shaanxi>', 34: '<Shandong>', 35: '<Shanghai>', 36: '<Shanxi>', 37: '<Sichuan>', 38: '<Tianjin>', 39: '<Tibet>', 40: '<Xinjiang>', 41: '<Yunnan>', 42: '<Zhejiang>', 43: '<police>', 44: 'A', 45: 'B', 46: 'C', 47: 'D', 48: 'E', 49: 'F', 50: 'G', 51: 'H', 52: 'I', 53: 'J', 54: 'K', 55: 'L', 56: 'M', 57: 'N', 58: 'O', 59: 'P', 60: 'Q', 61: 'R', 62: 'S', 63: 'T', 64: 'U', 65: 'V', 66: 'W', 67: 'X', 68: 'Y', 69: 'Z', 70: '_', -1: ''}
 
 
 def build_argparser():
@@ -54,9 +54,6 @@ def build_argparser():
                         help="Specify the target device to infer on; CPU, GPU, FPGA or MYRIAD is acceptable. Sample "
                              "will look for a suitable plugin for device specified (CPU by default)", default="CPU",
                         type=str)
-    parser.add_argument('--config', help='Path to a config.py', required=True)
-    parser.add_argument('--output', help='Output image')
-    parser.add_argument('--input_image', help='Image with license plate')
     return parser
 
 
@@ -95,14 +92,6 @@ def load_ir_model(model_xml, device, plugin_dir, cpu_extension):
     del net
 
     return exec_net, plugin, input_blob, out_blob, shape
-
-def rotate(image, degree):
-    (h, w) = image.shape[:2]
-    center = (w / 2, h / 2)
-    # 将图像旋转180度
-    M = cv2.getRotationMatrix2D(center, degree, 1.0)
-    rotated = cv2.warpAffine(image, M, (w, h))
-    return rotated
 
 def detect(frame):
 
@@ -151,35 +140,19 @@ def detect(frame):
 
             # 必须调整车牌到统一大小
             plate = image_sub
-            # print(plate.shape[0],plate.shape[1])
             if plate.shape[0] > 36:
                 plate = cv2.resize(image_sub, (136, 36 * 2))
             else:
                 plate = cv2.resize(image_sub, (136, 36 ))
-          #  cv2.imshow("test", plate)
-          #  cv2.waitKey(0)
-            # 判断车牌颜色
-            plate_type = pp.td.SimplePredict(plate)
-            plate_color = plateTypeName[plate_type]
-
-            if (plate_type > 0) and (plate_type < 5):
-                plate = cv2.bitwise_not(plate)
-
 
             # 精定位，倾斜校正
-            image_rgb = pp.fm.findContoursAndDrawBoundingBox(plate)
-           # cv2.imshow("test", image_rgb);
-           # cv2.waitKey(0)
-            # 车牌左右边界修正
-            image_rgb = pp.fv.finemappingVertical(image_rgb)
+            image_rgb = fm.findContoursAndDrawBoundingBox(plate)
             plates.append(image_rgb)
             xLeftBottoms.append(xLeftBottom_)
             yLeftBottoms.append(yLeftBottom_)
             xRightTops.append(xRightTop_)
             yRightTops.append(yRightTop_)
     return plates, xLeftBottoms, yLeftBottoms, xRightTops, yRightTops
-
-provinces={'<Beijing>': '京', '<Shanghai>': '沪', '<Tianjin>': '津', '<Sichuan>': '渝', '<Hebei>': '冀', '<Shanxi>': '晋', '<InnerMongolia>': '蒙', '<Jilin>': '吉', '<Heilongjiang>': '黑', '<Jiangsu>': '苏', '<Zhejiang>': '浙', '<Anhui>': '皖', '<Fujian>': '闽', '<Jiangxi>': '赣', '<Shandong>': '鲁', '<Henan>': '豫', '<Hubei>': '鄂', '<Hunan>': '湘', '<Guangdong>': '粤', '<Guangxi>': '桂', '<Hainan>': '琼', '<Sichuan>': '川', '<Guizhou>': '贵', '<Yunnan>': '云', '<Tibet>': '藏', '<Shaanxi>': '陕', '<Gansu>': '甘', '<Qinghai>': '青', '<Ningxia>': '宁', '<Xinjiang>': '新', '<Liaoning>': '辽', '<police>': '警'}
 
 def keymap_replace(
         string: str,
@@ -210,46 +183,59 @@ def keymap_replace(
         )
     return replaced_string
 
-def imreadex(filename):
-    return cv2.imdecode(np.fromfile(filename, dtype=np.uint8), cv2.IMREAD_COLOR)
-
+def decode_ie_output(vals, r_vocab):
+  vals = vals.flatten()
+  decoded_number = ''
+  for val in vals:
+    if val < 0:
+      break
+    decoded_number += r_vocab[val]
+  return decoded_number
 
 def main():
     log.basicConfig(format="[ %(levelname)s ] %(message)s", level=log.INFO, stream=sys.stdout)
     args = build_argparser().parse_args()
-    cfg = load_module(args.config)
     exec_net, plugin, input_blob, out_blob, shape = load_ir_model(args.model, args.device,
                                                                   args.plugin_dir, args.cpu_extension)
     n_batch, channels, height, width = shape
 
-    cv2.namedWindow('tttt', 0)
-    cv2.resizeWindow("tttt", 640, 480)
-    cap = cv2.VideoCapture('/home/awcloud/Desktop/code/lpr/test.mp4')
+    capture =cv2.VideoCapture(0)
+    cv2.namedWindow('camera', 1)
+
+    k = 0
+    count = 3
+    timer=0
     while cv2.waitKey(1) < 0:
         hasFrame, frame = cap.read()
-        frame = rotate(frame, -90)
-        plates, xLeftBottoms, yLeftBottoms, xRightTops, yRightTops = detect(frame)
-        if (len(plates)==0):
-            cv2.imshow('tttt', frame)
-        else:
-            for i, plate in enumerate(plates):
-                in_frame = cv2.resize(plates[i], (width, height))
-                in_frame = in_frame.transpose((2, 0, 1))  # Change data layout from HWC to CHW
-                in_frame = in_frame.reshape((n_batch, channels, height, width))
+        if (k == 0):
+            plates, xLeftBottoms, yLeftBottoms, xRightTops, yRightTops = detect(frame)
+            if (len(plates)==0):
+                cv2.imshow('camera', frame)
+            else:
+                for i, plate in enumerate(plates):
+                    in_frame = cv2.resize(plates[i], (width, height))
+                    in_frame = in_frame.transpose((2, 0, 1))  # Change data layout from HWC to CHW
+                    in_frame = in_frame.reshape((n_batch, channels, height, width))
 
-                result = exec_net.infer(inputs={input_blob: in_frame})
-                lp_code = result[out_blob][0]
-                lp_number = decode_ie_output(lp_code, cfg.r_vocab)
-                lp_number = keymap_replace(lp_number, provinces)
-                print('Output: {}'.format(lp_number))
-                cv2.rectangle(frame, (xLeftBottoms[i], yLeftBottoms[i]), (xRightTops[i], yRightTops[i]), (255, 178, 50), 2)
-                img = Image.fromarray(frame)
-                draw = ImageDraw.Draw(img)
-                draw.text((xLeftBottoms[i] + 1, yLeftBottoms[i] - 28), lp_number, (0, 0, 255), font=fontC)
-                imagex = np.array(img)
-                cv2.imshow('tttt', imagex)
-    cap.release()
-    cv2.destroyAllWindows()
+                    detect_time = []
+                    t0 = time()
+                    result = exec_net.infer(inputs={input_blob: in_frame})
+                    detect_time.append((time() - t0) * 1000)
+                    print('detect_time is {} ms'.format(np.average(np.asarray(detect_time))))
+
+                    lp_code = result[out_blob][0]
+                    lp_number = decode_ie_output(lp_code, r_vocab)
+                    lp_number = keymap_replace(lp_number, provinces)
+                    cv2.rectangle(frame, (xLeftBottoms[i], yLeftBottoms[i]), (xRightTops[i], yRightTops[i]), (255, 178, 50), 2)
+                    img = Image.fromarray(frame)
+                    draw = ImageDraw.Draw(img)
+                    draw.text((xLeftBottoms[i] + 1, yLeftBottoms[i] - 28), lp_number, (0, 0, 255), font=fontC)
+                    imagex = np.array(img)
+                    cv2.imshow('camera', imagex)
+        k = k + 1
+        k = k % count
+    capture.release()
+    cv2.destroyWindow('camera')
 
 
 if __name__ == '__main__':
