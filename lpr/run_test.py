@@ -19,7 +19,6 @@ import tensorflow as tf
 import numpy as np
 import cv2
 
-from tfutils.helpers import load_module
 from lpr.trainer import decode_beams, LPRVocab
 
 

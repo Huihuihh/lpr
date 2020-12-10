@@ -20,7 +20,6 @@ import argparse
 import numpy as np
 import tensorflow as tf
 from lpr.trainer import CTCUtils, inference, InputData, LPRVocab
-from tfutils.helpers import load_module
 
 
 def parse_args():
