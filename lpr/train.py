@@ -52,6 +52,9 @@ def train(args):
                                                       False,
                                                       False)
 
+  print('vocab', vocab)
+  print('r_vocab', r_vocab)
+  print('num_classes', num_classes)
   CTCUtils.vocab = vocab
   CTCUtils.r_vocab = r_vocab
 
