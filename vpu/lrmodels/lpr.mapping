@@ -1,0 +1,351 @@
+<?xml version="1.0" ?>
+<mapping>
+	<map>
+		<framework name="Reshape/shape" out_port_id="0"/>
+		<IR id="98" name="Reshape/Cast_15237_const" out_port_id="1"/>
+	</map>
+	<map>
+		<framework name="Conv_3/BatchNorm/FusedBatchNorm" out_port_id="0"/>
+		<IR id="20" name="Add1_2840/Fused_Add_" out_port_id="2"/>
+	</map>
+	<map>
+		<framework name="Conv_5/BatchNorm/FusedBatchNorm" out_port_id="0"/>
+		<IR id="31" name="Add1_2864/Fused_Add_" out_port_id="2"/>
+	</map>
+	<map>
+		<framework name="Conv_7/Conv2D" out_port_id="0"/>
+		<IR id="39" name="Conv_7/Conv2D" out_port_id="2"/>
+	</map>
+	<map>
+		<framework name="Reshape" out_port_id="0"/>
+		<IR id="101" name="Reshape/Transpose" out_port_id="2"/>
+	</map>
+	<map>
+		<framework name="Conv_8/Relu" out_port_id="0"/>
+		<IR id="47" name="Conv_8/Relu" out_port_id="1"/>
+	</map>
+	<map>
+		<framework name="Conv_11/Conv2D" out_port_id="0"/>
+		<IR id="59" name="Conv_11/Conv2D" out_port_id="2"/>
+	</map>
+	<map>
+		<framework name="Conv_14/BatchNorm/FusedBatchNorm" out_port_id="0"/>
+		<IR id="77" name="Add1_2972/Fused_Add_" out_port_id="2"/>
+	</map>
+	<map>
+		<framework name="fully_connected/BatchNorm/Reshape_1" out_port_id="0"/>
+		<IR id="96" name="fully_connected/BatchNorm/Reshape_1" out_port_id="2"/>
+	</map>
+	<map>
+		<framework name="Conv_5/Relu" out_port_id="0"/>
+		<IR id="32" name="Conv_5/Relu" out_port_id="1"/>
+	</map>
+	<map>
+		<framework name="Tile" out_port_id="0"/>
+		<IR id="103" name="Tile" out_port_id="2"/>
+	</map>
+	<map>
+		<framework name="fully_connected/Relu" out_port_id="0"/>
+		<IR id="97" name="fully_connected/Relu" out_port_id="1"/>
+	</map>
+	<map>
+		<framework name="Conv_11/BatchNorm/FusedBatchNorm" out_port_id="0"/>
+		<IR id="61" name="Add1_2936/Fused_Add_" out_port_id="2"/>
+	</map>
+	<map>
+		<framework name="fully_connected/MatMul" out_port_id="0"/>
+		<IR id="84" name="fully_connected/MatMul" out_port_id="2"/>
+	</map>
+	<map>
+		<framework name="Conv_7/BatchNorm/FusedBatchNorm" out_port_id="0"/>
+		<IR id="41" name="Add1_2888/Fused_Add_" out_port_id="2"/>
+	</map>
+	<map>
+		<framework name="Conv_15/BiasAdd" out_port_id="0"/>
+		<IR id="110" name="Conv_15/BiasAdd/Add/Transpose" out_port_id="2"/>
+	</map>
+	<map>
+		<framework name="Conv_10/weights/read" out_port_id="0"/>
+		<IR id="53" name="Mul1_2923/Fused_Mul_34983500_const" out_port_id="1"/>
+	</map>
+	<map>
+		<framework name="Conv_13/BatchNorm/FusedBatchNorm" out_port_id="0"/>
+		<IR id="72" name="Add1_2960/Fused_Add_" out_port_id="2"/>
+	</map>
+	<map>
+		<framework name="Conv_3/Relu" out_port_id="0"/>
+		<IR id="21" name="Conv_3/Relu" out_port_id="1"/>
+	</map>
+	<map>
+		<framework name="Conv_15/weights/read" out_port_id="0"/>
+		<IR id="105" name="Conv_15/weights/read/Output_0/Data__const" out_port_id="1"/>
+	</map>
+	<map>
+		<framework name="Conv_7/weights/read" out_port_id="0"/>
+		<IR id="38" name="Mul1_2887/Fused_Mul_34863488_const" out_port_id="1"/>
+	</map>
+	<map>
+		<framework name="Conv/Conv2D" out_port_id="0"/>
+		<IR id="2" name="Conv/Conv2D" out_port_id="2"/>
+	</map>
+	<map>
+		<framework name="Conv_4/BatchNorm/FusedBatchNorm" out_port_id="0"/>
+		<IR id="25" name="Add1_2852/Fused_Add_" out_port_id="2"/>
+	</map>
+	<map>
+		<framework name="fully_connected/BatchNorm/Shape" out_port_id="0"/>
+		<IR id="95" name="fully_connected/BatchNorm/Reshape_1/Cast_15229_const" out_port_id="1"/>
+	</map>
+	<map>
+		<framework name="Conv_8/Conv2D" out_port_id="0"/>
+		<IR id="44" name="Conv_8/Conv2D" out_port_id="2"/>
+	</map>
+	<map>
+		<framework name="Conv_4/Relu" out_port_id="0"/>
+		<IR id="26" name="Conv_4/Relu" out_port_id="1"/>
+	</map>
+	<map>
+		<framework name="Conv_12/Relu" out_port_id="0"/>
+		<IR id="67" name="Conv_12/Relu" out_port_id="1"/>
+	</map>
+	<map>
+		<framework name="Conv_14/weights/read" out_port_id="0"/>
+		<IR id="74" name="Mul1_2971/Fused_Mul_35143516_const" out_port_id="1"/>
+	</map>
+	<map>
+		<framework name="Conv_15/Conv2D" out_port_id="0"/>
+		<IR id="106" name="Conv_15/Conv2D" out_port_id="2"/>
+	</map>
+	<map>
+		<framework name="Fill" out_port_id="0"/>
+		<IR id="115" name="Fill/Broadcast/Output_0/Data__const" out_port_id="1"/>
+	</map>
+	<map>
+		<framework name="fully_connected/BatchNorm/FusedBatchNorm" out_port_id="0"/>
+		<IR id="94" name="Add1_2984/Fused_Add_/Transpose" out_port_id="2"/>
+	</map>
+	<map>
+		<framework name="input" out_port_id="0"/>
+		<IR id="0" name="input" out_port_id="0"/>
+	</map>
+	<map>
+		<framework name="Conv_11/weights/read" out_port_id="0"/>
+		<IR id="58" name="Mul1_2935/Fused_Mul_35023504_const" out_port_id="1"/>
+	</map>
+	<map>
+		<framework name="Dropout_1/Identity" out_port_id="0"/>
+		<IR id="73" name="Conv_13/Relu" out_port_id="1"/>
+	</map>
+	<map>
+		<framework name="Conv_13/Relu" out_port_id="0"/>
+		<IR id="73" name="Conv_13/Relu" out_port_id="1"/>
+	</map>
+	<map>
+		<framework name="MaxPool2D_1/MaxPool" out_port_id="0"/>
+		<IR id="27" name="MaxPool2D_1/MaxPool" out_port_id="1"/>
+	</map>
+	<map>
+		<framework name="Conv_3/Conv2D" out_port_id="0"/>
+		<IR id="18" name="Conv_3/Conv2D" out_port_id="2"/>
+	</map>
+	<map>
+		<framework name="Conv_12/BatchNorm/FusedBatchNorm" out_port_id="0"/>
+		<IR id="66" name="Add1_2948/Fused_Add_" out_port_id="2"/>
+	</map>
+	<map>
+		<framework name="Conv_10/BatchNorm/FusedBatchNorm" out_port_id="0"/>
+		<IR id="56" name="Add1_2924/Fused_Add_" out_port_id="2"/>
+	</map>
+	<map>
+		<framework name="transpose/perm" out_port_id="0"/>
+		<IR id="113" name="transpose/Cast_15241_const" out_port_id="1"/>
+	</map>
+	<map>
+		<framework name="Dropout/Identity" out_port_id="0"/>
+		<IR id="68" name="MaxPool2D_2/MaxPool" out_port_id="1"/>
+	</map>
+	<map>
+		<framework name="MaxPool2D_2/MaxPool" out_port_id="0"/>
+		<IR id="68" name="MaxPool2D_2/MaxPool" out_port_id="1"/>
+	</map>
+	<map>
+		<framework name="Conv_12/Conv2D" out_port_id="0"/>
+		<IR id="64" name="Conv_12/Conv2D" out_port_id="2"/>
+	</map>
+	<map>
+		<framework name="Conv_13/Conv2D" out_port_id="0"/>
+		<IR id="70" name="Conv_13/Conv2D" out_port_id="2"/>
+	</map>
+	<map>
+		<framework name="Conv_14/Relu" out_port_id="0"/>
+		<IR id="80" name="Conv_14/Relu/Transpose" out_port_id="2"/>
+	</map>
+	<map>
+		<framework name="Conv_2/BatchNorm/FusedBatchNorm" out_port_id="0"/>
+		<IR id="15" name="Add1_2828/Fused_Add_" out_port_id="2"/>
+	</map>
+	<map>
+		<framework name="Conv/weights/read" out_port_id="0"/>
+		<IR id="1" name="input/reverse_input_channels/Concat4983_const" out_port_id="1"/>
+	</map>
+	<map>
+		<framework name="Conv_3/weights/read" out_port_id="0"/>
+		<IR id="17" name="Mul1_2839/Fused_Mul_34703472_const" out_port_id="1"/>
+	</map>
+	<map>
+		<framework name="Conv_2/Conv2D" out_port_id="0"/>
+		<IR id="13" name="Conv_2/Conv2D" out_port_id="2"/>
+	</map>
+	<map>
+		<framework name="Conv_9/Relu" out_port_id="0"/>
+		<IR id="52" name="Conv_9/Relu" out_port_id="1"/>
+	</map>
+	<map>
+		<framework name="Conv_10/Conv2D" out_port_id="0"/>
+		<IR id="54" name="Conv_10/Conv2D" out_port_id="2"/>
+	</map>
+	<map>
+		<framework name="Conv_8/BatchNorm/FusedBatchNorm" out_port_id="0"/>
+		<IR id="46" name="Add1_2900/Fused_Add_" out_port_id="2"/>
+	</map>
+	<map>
+		<framework name="Conv/Relu" out_port_id="0"/>
+		<IR id="5" name="Conv/Relu" out_port_id="1"/>
+	</map>
+	<map>
+		<framework name="Conv_6/Conv2D" out_port_id="0"/>
+		<IR id="34" name="Conv_6/Conv2D" out_port_id="2"/>
+	</map>
+	<map>
+		<framework name="fully_connected/BatchNorm/Reshape/shape" out_port_id="0"/>
+		<IR id="85" name="fully_connected/BatchNorm/Reshape/Cast_15227_const" out_port_id="1"/>
+	</map>
+	<map>
+		<framework name="Conv_2/weights/read" out_port_id="0"/>
+		<IR id="12" name="Mul1_2827/Fused_Mul_34663468_const" out_port_id="1"/>
+	</map>
+	<map>
+		<framework name="Conv_5/weights/read" out_port_id="0"/>
+		<IR id="28" name="Mul1_2863/Fused_Mul_34783480_const" out_port_id="1"/>
+	</map>
+	<map>
+		<framework name="Conv_13/weights/read" out_port_id="0"/>
+		<IR id="69" name="Mul1_2959/Fused_Mul_35103512_const" out_port_id="1"/>
+	</map>
+	<map>
+		<framework name="Conv_4/weights/read" out_port_id="0"/>
+		<IR id="22" name="Mul1_2851/Fused_Mul_34743476_const" out_port_id="1"/>
+	</map>
+	<map>
+		<framework name="MaxPool2D/MaxPool" out_port_id="0"/>
+		<IR id="6" name="MaxPool2D/MaxPool" out_port_id="1"/>
+	</map>
+	<map>
+		<framework name="Conv_1/weights/read" out_port_id="0"/>
+		<IR id="7" name="Mul1_2815/Fused_Mul_34623464_const" out_port_id="1"/>
+	</map>
+	<map>
+		<framework name="Conv_11/Relu" out_port_id="0"/>
+		<IR id="62" name="Conv_11/Relu" out_port_id="1"/>
+	</map>
+	<map>
+		<framework name="Conv_6/weights/read" out_port_id="0"/>
+		<IR id="33" name="Mul1_2875/Fused_Mul_34823484_const" out_port_id="1"/>
+	</map>
+	<map>
+		<framework name="Conv_9/Conv2D" out_port_id="0"/>
+		<IR id="49" name="Conv_9/Conv2D" out_port_id="2"/>
+	</map>
+	<map>
+		<framework name="fully_connected/BatchNorm/Reshape" out_port_id="0"/>
+		<IR id="88" name="fully_connected/BatchNorm/Reshape/Transpose" out_port_id="2"/>
+	</map>
+	<map>
+		<framework name="Conv/BatchNorm/FusedBatchNorm" out_port_id="0"/>
+		<IR id="4" name="Add1_/Fused_Add_" out_port_id="2"/>
+	</map>
+	<map>
+		<framework name="Conv_6/Relu" out_port_id="0"/>
+		<IR id="37" name="Conv_6/Relu" out_port_id="1"/>
+	</map>
+	<map>
+		<framework name="Conv_1/Relu" out_port_id="0"/>
+		<IR id="11" name="Conv_1/Relu" out_port_id="1"/>
+	</map>
+	<map>
+		<framework name="Conv_2/Relu" out_port_id="0"/>
+		<IR id="16" name="Conv_2/Relu" out_port_id="1"/>
+	</map>
+	<map>
+		<framework name="Conv_10/Relu" out_port_id="0"/>
+		<IR id="57" name="Conv_10/Relu" out_port_id="1"/>
+	</map>
+	<map>
+		<framework name="Conv_6/BatchNorm/FusedBatchNorm" out_port_id="0"/>
+		<IR id="36" name="Add1_2876/Fused_Add_" out_port_id="2"/>
+	</map>
+	<map>
+		<framework name="transpose" out_port_id="0"/>
+		<IR id="114" name="transpose" out_port_id="2"/>
+	</map>
+	<map>
+		<framework name="Conv_1/BatchNorm/FusedBatchNorm" out_port_id="0"/>
+		<IR id="10" name="Add1_2816/Fused_Add_" out_port_id="2"/>
+	</map>
+	<map>
+		<framework name="CTCGreedyDecoder" out_port_id="0"/>
+		<IR id="116" name="CTCGreedyDecoder" out_port_id="2"/>
+	</map>
+	<map>
+		<framework name="Conv_9/BatchNorm/FusedBatchNorm" out_port_id="0"/>
+		<IR id="51" name="Add1_2912/Fused_Add_" out_port_id="2"/>
+	</map>
+	<map>
+		<framework name="Conv_8/weights/read" out_port_id="0"/>
+		<IR id="43" name="Mul1_2899/Fused_Mul_34903492_const" out_port_id="1"/>
+	</map>
+	<map>
+		<framework name="Conv_9/weights/read" out_port_id="0"/>
+		<IR id="48" name="Mul1_2911/Fused_Mul_34943496_const" out_port_id="1"/>
+	</map>
+	<map>
+		<framework name="Conv_4/Conv2D" out_port_id="0"/>
+		<IR id="23" name="Conv_4/Conv2D" out_port_id="2"/>
+	</map>
+	<map>
+		<framework name="Conv_1/Conv2D" out_port_id="0"/>
+		<IR id="8" name="Conv_1/Conv2D" out_port_id="2"/>
+	</map>
+	<map>
+		<framework name="concat" out_port_id="0"/>
+		<IR id="104" name="concat" out_port_id="2"/>
+	</map>
+	<map>
+		<framework name="Conv_12/weights/read" out_port_id="0"/>
+		<IR id="63" name="Mul1_2947/Fused_Mul_35063508_const" out_port_id="1"/>
+	</map>
+	<map>
+		<framework name="Conv_7/Relu" out_port_id="0"/>
+		<IR id="42" name="Conv_7/Relu" out_port_id="1"/>
+	</map>
+	<map>
+		<framework name="fully_connected/weights/read" out_port_id="0"/>
+		<IR id="83" name="fully_connected/MatMul/1_port_transpose4444_const" out_port_id="1"/>
+	</map>
+	<map>
+		<framework name="Squeeze" out_port_id="0"/>
+		<IR id="112" name="Squeeze" out_port_id="2"/>
+	</map>
+	<map>
+		<framework name="Conv_14/Conv2D" out_port_id="0"/>
+		<IR id="75" name="Conv_14/Conv2D" out_port_id="2"/>
+	</map>
+	<map>
+		<framework name="Conv_5/Conv2D" out_port_id="0"/>
+		<IR id="29" name="Conv_5/Conv2D" out_port_id="2"/>
+	</map>
+	<map>
+		<framework name="Flatten/flatten/Reshape" out_port_id="0"/>
+		<IR id="82" name="Flatten/flatten/Reshape" out_port_id="2"/>
+	</map>
+</mapping>
